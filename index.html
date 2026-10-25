@@ -468,7 +468,7 @@
 
         <!-- FOOTER -->
         <footer class="bg-slate-900 border-t border-slate-800 py-4 text-center text-xs text-slate-500">
-            Sistem Pelaksanaan Prestasi Tugas &bull; Pusat Islam USIM &bull; Unit Pentadbiran
+            Sistem Pelaksanaan Prestasi Tugas &bull; Pusat Islam &bull; Hak Cipta Terpelihara
         </footer>
     </div>
 
@@ -633,6 +633,41 @@
         let attachedFile = null; // { name, type, size, base64, url }
         let pendingDeleteRecord = null; // Rekod yang dipilih untuk pemadaman fail
 
+        // FUNGSI PENGENDALIAN FORMAT TARIKH KEMAS & PINTAR
+        function formatDisplayDate(dateVal) {
+            if (!dateVal || dateVal === '-' || dateVal === 'undefined' || dateVal === 'null') {
+                return "-";
+            }
+            const str = String(dateVal).trim();
+            if (str === "" || str === "-") return "-";
+
+            // Format standard yyyy-mm-dd
+            if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
+                return str;
+            }
+
+            // Format d/m/yyyy atau dd/mm/yyyy
+            if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(str)) {
+                return str;
+            }
+
+            // Jika mengandungi rentetan masa ISO dari Google Sheets cth: 2026-10-11T16:00:00.000Z
+            const d = new Date(str);
+            if (!isNaN(d.getTime())) {
+                const year = d.getFullYear();
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
+
+            // Potong teks jika ada aksara 'T'
+            if (str.includes("T")) {
+                return str.split("T")[0];
+            }
+
+            return str;
+        }
+
         // FUNGSI PENGENDALIAN FAIL
         function handleFileSelection(e) {
             const file = e.target.files[0];
@@ -717,7 +752,6 @@
             if (e) e.stopPropagation();
             if (!attachedFile) return;
 
-            // Jika fail ini sudah tersimpan di Drive (mempunyai URL), tanya pengesahan untuk padam dari Cloud
             if (attachedFile.url) {
                 const currentKerja = document.getElementById('kerja-select')?.value || '';
                 const currentUnit = document.getElementById('unit-select')?.value || '';
@@ -731,7 +765,6 @@
                     fileUrl: attachedFile.url
                 });
             } else {
-                // Fail tempatan yang belum dimuat naik
                 attachedFile = null;
                 const input = document.getElementById('file-upload-input');
                 if (input) input.value = "";
@@ -768,7 +801,6 @@
             if (btnConfirm) btnConfirm.disabled = true;
 
             try {
-                // 1. Panggil Webhook Google Apps Script untuk padam fail fizikal & kemaskini Sheets
                 if (webhookUrl) {
                     await fetch(webhookUrl, {
                         method: 'POST',
@@ -783,7 +815,6 @@
                     });
                 }
 
-                // 2. Kemaskini state tempatan
                 const idx = currentSessionRecords.findIndex(r => 
                     r.kerja.trim().toLowerCase() === rec.kerja.trim().toLowerCase() &&
                     r.unit.trim().toLowerCase() === rec.unit.trim().toLowerCase()
@@ -795,7 +826,6 @@
                     currentSessionRecords[idx].filePayload = null;
                 }
 
-                // Jika borang sedang memaparkan rekod ini, kosongkan attachedFile
                 const curKerja = document.getElementById('kerja-select')?.value || '';
                 const curUnit = document.getElementById('unit-select')?.value || '';
                 if (curKerja.trim().toLowerCase() === rec.kerja.trim().toLowerCase() && 
@@ -1281,19 +1311,26 @@
 
         function normalizeDateString(dateVal) {
             if (!dateVal) return "";
-            if (/^\d{4}-\d{2}-\d{2}$/.test(dateVal)) {
-                return dateVal;
+            const str = String(dateVal).trim();
+            if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
+                return str;
             }
-            if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(dateVal)) {
-                const parts = dateVal.split('/');
+            if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(str)) {
+                const parts = str.split('/');
                 const day = parts[0].padStart(2, '0');
                 const month = parts[1].padStart(2, '0');
                 const year = parts[2];
                 return `${year}-${month}-${day}`;
             }
-            const d = new Date(dateVal);
+            const d = new Date(str);
             if (!isNaN(d.getTime())) {
-                return d.toISOString().split('T')[0];
+                const year = d.getFullYear();
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
+            if (str.includes("T")) {
+                return str.split("T")[0];
             }
             return "";
         }
@@ -1435,8 +1472,8 @@
                 kerja: kerja,
                 unit: unit,
                 skop: skop,
-                tarikhMula: tarikhMula,
-                tarikhAkhir: tarikhAkhir,
+                tarikhMula: formatDisplayDate(tarikhMula),
+                tarikhAkhir: formatDisplayDate(tarikhAkhir),
                 tempohDue: tempohDue,
                 tempoh: tempohDue,
                 peratus: `${peratusVal}%`,
@@ -1659,6 +1696,10 @@
                     `;
                 }
 
+                // Tarikh yang telah diformatkan dengan kemas
+                const displayMula = formatDisplayDate(item.tarikhMula);
+                const displayAkhir = formatDisplayDate(item.tarikhAkhir);
+
                 html += `
                     <tr class="hover:bg-slate-800/40 transition border-b border-slate-800/70 align-middle">
                         <td class="py-2.5 px-3 break-words">
@@ -1670,10 +1711,10 @@
                         </td>
                         <td class="py-2.5 px-2 text-[11px] text-slate-300">
                             <div class="flex items-center gap-1 font-mono text-[10.5px]">
-                                <span class="text-slate-500 text-[9px] uppercase font-sans">M:</span> ${item.tarikhMula}
+                                <span class="text-slate-500 text-[9px] uppercase font-sans">M:</span> ${displayMula}
                             </div>
                             <div class="flex items-center gap-1 font-mono text-[10.5px] mt-0.5">
-                                <span class="text-slate-500 text-[9px] uppercase font-sans">T:</span> ${item.tarikhAkhir}
+                                <span class="text-slate-500 text-[9px] uppercase font-sans">T:</span> ${displayAkhir}
                             </div>
                         </td>
                         <td class="py-2.5 px-1.5 text-center text-slate-300">
@@ -1735,8 +1776,8 @@
                         namaKerja: record.kerja,
                         unit: record.unit,
                         skopKerja: record.skop,
-                        tarikhMula: record.tarikhMula,
-                        tarikhAkhir: record.tarikhAkhir,
+                        tarikhMula: formatDisplayDate(record.tarikhMula),
+                        tarikhAkhir: formatDisplayDate(record.tarikhAkhir),
                         peratus: record.peratus,
                         status: record.status,
                         tempoh: record.tempohDue || record.tempoh || '',
@@ -1871,8 +1912,13 @@
                 currentSessionRecords = result.data.map((row, idx) => {
                     const nama = row.namaKerja || row[0] || 'Tugasan';
                     const skop = row.skopKerja || row[2] || 'Skop Am';
-                    const tarikhMulaVal = row.tarikhMula || row[3] || '-';
-                    const tarikhAkhirVal = row.tarikhAkhir || row[4] || '-';
+                    const rawTarikhMula = row.tarikhMula || row[3] || '-';
+                    const rawTarikhAkhir = row.tarikhAkhir || row[4] || '-';
+
+                    // Format kepada tarikh bersih sahaja (YYYY-MM-DD)
+                    const tarikhMulaVal = formatDisplayDate(rawTarikhMula);
+                    const tarikhAkhirVal = formatDisplayDate(rawTarikhAkhir);
+
                     const peratusRaw = row.peratus !== undefined && row.peratus !== null ? row.peratus : (row[5] !== undefined ? row[5] : '0%');
                     
                     const percentNum = parsePercentageValue(peratusRaw);
@@ -1981,8 +2027,8 @@
                 `"${(r.kerja || '').replace(/"/g, '""')}"`,
                 `"${(r.unit || '').replace(/"/g, '""')}"`,
                 `"${(r.skop || '').replace(/"/g, '""')}"`,
-                `"${r.tarikhMula || '-'}"`,
-                `"${r.tarikhAkhir || '-'}"`,
+                `"${formatDisplayDate(r.tarikhMula)}"`,
+                `"${formatDisplayDate(r.tarikhAkhir)}"`,
                 `"${r.tempohDue || '-'}"`,
                 `"${r.peratus || '0%'}"`,
                 `"${r.status || '-'}"`,
@@ -2027,6 +2073,7 @@
         window.handleKerjaChange = handleKerjaChange;
         window.calculateDueDate = calculateDueDate;
         window.calculatePercentage = calculatePercentage;
+        window.formatDisplayDate = formatDisplayDate;
         window.handleFileSelection = handleFileSelection;
         window.handleRemoveOrDeleteCurrentFile = handleRemoveOrDeleteCurrentFile;
         window.confirmDeleteFileRow = confirmDeleteFileRow;
