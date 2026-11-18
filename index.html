@@ -340,7 +340,7 @@
                             </div>
 
                             <!-- STATUS OTOMATIK -->
-                            <div class="pt-2">
+                            <div class="pt-2 border-t border-slate-800/80">
                                 <label class="block text-xs font-semibold text-slate-300 mb-1.5">Status Tugasan (Automatik)</label>
                                 <div id="status-container" class="flex items-center gap-2.5 p-3 bg-slate-950 border border-slate-800 rounded-xl">
                                     <span id="status-icon" class="w-3 h-3 rounded-full bg-slate-600"></span>
@@ -348,8 +348,38 @@
                                 </div>
                             </div>
 
+                            <!-- PILIHAN STATUS KHAS: DITUNDA / DIBATALKAN -->
+                            <div class="pt-1">
+                                <div class="flex items-center justify-between gap-2 p-2.5 rounded-xl border border-slate-800 bg-slate-950/80">
+                                    <span class="text-xs font-semibold text-slate-300 shrink-0">Status Khas:</span>
+                                    <div class="flex items-center gap-3">
+                                        <label class="flex items-center gap-1.5 cursor-pointer select-none text-xs text-slate-300 hover:text-orange-300 transition">
+                                            <input type="checkbox" id="tick-postponed" onchange="handleSpecialStatusChange('postponed')"
+                                                class="w-3.5 h-3.5 text-orange-500 rounded border-slate-700 bg-slate-900 focus:ring-orange-500">
+                                            <i class="fa-solid fa-clock text-orange-400 text-[11px]"></i>
+                                            <span class="font-medium">Ditunda</span>
+                                        </label>
+                                        <label class="flex items-center gap-1.5 cursor-pointer select-none text-xs text-slate-300 hover:text-rose-300 transition">
+                                            <input type="checkbox" id="tick-cancelled" onchange="handleSpecialStatusChange('cancelled')"
+                                                class="w-3.5 h-3.5 text-rose-500 rounded border-slate-700 bg-slate-900 focus:ring-rose-500">
+                                            <i class="fa-solid fa-ban text-rose-400 text-[11px]"></i>
+                                            <span class="font-medium">Dibatalkan</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- RUANG CATATAN -->
+                            <div class="pt-1">
+                                <label for="catatan-input" class="block text-xs font-semibold text-slate-300 mb-1.5">
+                                    <i class="fa-solid fa-note-sticky text-amber-400 mr-1"></i> Catatan (Pilihan)
+                                </label>
+                                <textarea id="catatan-input" rows="2" placeholder="Masukkan catatan atau maklumat tambahan tugasan..."
+                                    class="w-full text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-slate-700 bg-slate-950 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition resize-y"></textarea>
+                            </div>
+
                             <!-- RUANG MUAT NAIK FAIL (GOOGLE DRIVE) -->
-                            <div class="pt-2">
+                            <div class="pt-1">
                                 <div class="flex items-center justify-between mb-1.5">
                                     <label class="block text-xs font-semibold text-slate-300">
                                         <i class="fa-solid fa-paperclip text-blue-400 mr-1"></i> Muat Naik Fail / Dokumen (Pilihan)
@@ -391,8 +421,73 @@
 
                 </div>
 
-                <!-- BAHAGIAN KANAN: PAPARAN REKOD (7 COLS) -->
+                <!-- BAHAGIAN KANAN: TAMBAH TUGAS & PAPARAN REKOD (7 COLS) -->
                 <div class="lg:col-span-7 space-y-4">
+
+                    <!-- RUANG BAHARU: TAMBAH TUGAS TAMBAHAN -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                            <div>
+                                <h3 class="font-bold text-white text-sm flex items-center gap-2">
+                                    <i class="fa-solid fa-folder-plus text-emerald-400"></i>
+                                    Tambah Tugasan Baharu (Tugas Tambahan)
+                                </h3>
+                                <p class="text-xs text-slate-400 mt-0.5">Daftar tugasan baharu ke dalam sistem.</p>
+                            </div>
+                            <span class="text-[11px] bg-emerald-950 text-emerald-300 border border-emerald-800 px-2.5 py-0.5 rounded-full font-medium">
+                                Tugas Tambahan
+                            </span>
+                        </div>
+
+                        <form id="add-task-form" onsubmit="handleAddExtraTaskSubmit(event)" class="space-y-3.5">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <!-- Pilihan Unit (Auto-sync dengan senarai Unit sedia ada) -->
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">
+                                        <i class="fa-solid fa-building-user text-emerald-400 mr-1"></i> Pilih Unit / Seksyen:
+                                    </label>
+                                    <select id="extra-unit-select" required onchange="handleExtraUnitChange()"
+                                        class="w-full text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-slate-700 bg-slate-950 text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition cursor-pointer">
+                                        <option value="" disabled selected>-- Sila Pilih Unit --</option>
+                                        <option value="Unit Pentadbiran & Sumber Manusia">Unit Pentadbiran & Sumber Manusia</option>
+                                        <option value="Unit Kewangan & Akaun">Unit Kewangan & Akaun</option>
+                                        <option value="Unit Teknologi Maklumat & Digital">Unit Teknologi Maklumat & Digital</option>
+                                        <option value="Unit Perancangan Strategik & Operasi">Unit Perancangan Strategik & Operasi</option>
+                                        <option value="Unit Komunikasi Korporat & Perhubungan">Unit Komunikasi Korporat & Perhubungan</option>
+                                        <option value="Unit Integriti & Pematuhan">Unit Integriti & Pematuhan</option>
+                                    </select>
+                                </div>
+
+                                <!-- Pilihan Skop Kerja (Auto mengikut Unit dipilih) -->
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">
+                                        <i class="fa-solid fa-layer-group text-emerald-400 mr-1"></i> Skop Kerja:
+                                    </label>
+                                    <select id="extra-skop-select" required
+                                        class="w-full text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-slate-700 bg-slate-950 text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition cursor-pointer">
+                                        <option value="" disabled selected>-- Sila Pilih Unit Dahulu --</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Input Nama Tugas Tambahan & Butang Simpan -->
+                            <div>
+                                <label for="extra-kerja-input" class="block text-xs font-semibold text-slate-300 mb-1.5">
+                                    <i class="fa-solid fa-plus-circle text-emerald-400 mr-1"></i> Nama / Deskripsi Tugas Tambahan:
+                                </label>
+                                <div class="flex flex-col sm:flex-row gap-2.5">
+                                    <input type="text" id="extra-kerja-input" required placeholder="Contoh: Penyediaan Laporan Khas Bulanan / Mesyuarat Penyelarasan..."
+                                        class="w-full text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-slate-700 bg-slate-950 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition">
+                                    <button type="submit" id="btn-save-extra-task"
+                                        class="w-full sm:w-auto px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-emerald-600/20 transition flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 active:scale-[0.99]">
+                                        <i class="fa-solid fa-floppy-disk"></i>
+                                        <span>Simpan Tugas</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
                     <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-800 gap-3">
                             <div>
@@ -415,7 +510,7 @@
                                 <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
                                     <i class="fa-solid fa-magnifying-glass text-xs"></i>
                                 </span>
-                                <input type="text" id="table-search-input" onkeyup="handleSearchInput(event)" placeholder="Cari nama kerja, skop atau status..."
+                                <input type="text" id="table-search-input" onkeyup="handleSearchInput(event)" placeholder="Cari nama kerja, skop, status atau catatan..."
                                     class="w-full text-xs pl-9 pr-3.5 py-2.5 rounded-xl border border-slate-800 bg-slate-950 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
                             </div>
                             <button onclick="renderRecordsTable(true)" class="w-full sm:w-auto text-xs px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-slate-300 transition whitespace-nowrap flex items-center justify-center gap-1.5" title="Papar semua rekod tanpa tapisan dropdown">
@@ -438,20 +533,21 @@
 
                         <!-- JADUAL PAPARAN -->
                         <div class="overflow-x-auto rounded-xl border border-slate-800/80">
-                            <table class="w-full text-left text-xs table-fixed min-w-[620px]">
+                            <table class="w-full text-left text-xs">
                                 <thead>
                                     <tr class="text-slate-400 uppercase tracking-wider border-b border-slate-800 bg-slate-950">
-                                        <th class="py-3 px-3 font-semibold w-[32%]">Kerja & Unit</th>
-                                        <th class="py-3 px-2 font-semibold w-[16%]">Tarikh</th>
-                                        <th class="py-3 px-1.5 font-semibold w-[9%] text-center">Tempoh</th>
-                                        <th class="py-3 px-1.5 font-semibold w-[9%] text-center">Prestasi</th>
-                                        <th class="py-3 px-2 font-semibold w-[12%] text-center">Status</th>
-                                        <th class="py-3 px-2.5 font-semibold w-[22%] text-center">Fail / Dokumen</th>
+                                        <th class="py-3 px-2.5 font-semibold">Kerja, Unit & Catatan</th>
+                                        <th class="py-3 px-2 font-semibold w-[96px] whitespace-nowrap">Tarikh</th>
+                                        <th class="py-3 px-1.5 font-semibold w-[62px] text-center whitespace-nowrap">Tempoh</th>
+                                        <th class="py-3 px-1.5 font-semibold w-[60px] text-center whitespace-nowrap">Prestasi</th>
+                                        <th class="py-3 px-1.5 font-semibold w-[82px] text-center whitespace-nowrap">Status</th>
+                                        <th class="py-3 px-1.5 font-semibold w-[74px] text-center whitespace-nowrap">Fail</th>
+                                        <th class="py-3 px-2 font-semibold w-[72px] text-center whitespace-nowrap">Tindakan</th>
                                     </tr>
                                 </thead>
                                 <tbody id="session-records-body" class="divide-y divide-slate-800 text-slate-300 bg-slate-900/60">
                                     <tr id="empty-row">
-                                        <td colspan="6" class="text-center py-12 text-slate-500">
+                                        <td colspan="7" class="text-center py-12 text-slate-500">
                                             <i class="fa-regular fa-folder-open text-3xl mb-2 block"></i>
                                             Belum ada rekod kerja yang diisi. Sila lengkapkan borang di sebelah kiri.
                                         </td>
@@ -475,7 +571,8 @@
     <!-- LOGIK JAVASCRIPT SISTEM -->
     <script>
         // Kredensial Kata Laluan Akses SHA-256 (Lalai: "admin123")
-        const PASSWORD_SHA256_HASH = "f6e0a1e2ac41945a9aa7ff8a8aaa0cebc12a3bcc981a929ad5cf810a090e11ae";
+        const PASSWORD_SHA256_HASH = "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9";
+        const FALLBACK_PASS = "admin123";
         const SESSION_AUTH_KEY = "status_kerja_auth_token";
         const LOCAL_STORAGE_KEY = "status_kerja_records_cache";
 
@@ -630,8 +727,8 @@
         let isMeetingMode = false;
         let currentMeetingTarget = 7;
         let currentMeetingCount = 0;
-        let attachedFile = null; // { name, type, size, base64, url }
-        let pendingDeleteRecord = null; // Rekod yang dipilih untuk pemadaman fail
+        let attachedFile = null;
+        let pendingDeleteRecord = null;
 
         // FUNGSI PENGENDALIAN FORMAT TARIKH KEMAS & PINTAR
         function formatDisplayDate(dateVal) {
@@ -641,17 +738,14 @@
             const str = String(dateVal).trim();
             if (str === "" || str === "-") return "-";
 
-            // Format standard yyyy-mm-dd
             if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
                 return str;
             }
 
-            // Format d/m/yyyy atau dd/mm/yyyy
             if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(str)) {
                 return str;
             }
 
-            // Jika mengandungi rentetan masa ISO dari Google Sheets cth: 2026-10-11T16:00:00.000Z
             const d = new Date(str);
             if (!isNaN(d.getTime())) {
                 const year = d.getFullYear();
@@ -660,7 +754,6 @@
                 return `${year}-${month}-${day}`;
             }
 
-            // Potong teks jika ada aksara 'T'
             if (str.includes("T")) {
                 return str.split("T")[0];
             }
@@ -747,7 +840,6 @@
             }
         }
 
-        // Batal pemilihan atau padam fail semasa di borang
         function handleRemoveOrDeleteCurrentFile(e) {
             if (e) e.stopPropagation();
             if (!attachedFile) return;
@@ -849,18 +941,39 @@
 
         // FUNGSI KESELAMATAN SHA-256
         async function sha256(message) {
-            const msgBuffer = new TextEncoder().encode(message);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            try {
+                if (window.crypto && window.crypto.subtle) {
+                    const msgBuffer = new TextEncoder().encode(message);
+                    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+                    const hashArray = Array.from(new Uint8Array(hashBuffer));
+                    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                }
+            } catch (err) {
+                console.warn("crypto.subtle tidak tersedia, menggunakan semakan sandaran.", err);
+            }
+            return message === FALLBACK_PASS ? PASSWORD_SHA256_HASH : "";
+        }
+
+        function isPreviewEnvironment() {
+            try {
+                return window.self !== window.top || window.location.protocol === 'blob:' || window.location.protocol === 'about:' || window.location.hostname === '';
+            } catch (e) {
+                return true;
+            }
         }
 
         function initAuth() {
-            const isAuth = sessionStorage.getItem(SESSION_AUTH_KEY);
+            let isAuth = false;
+            try {
+                isAuth = sessionStorage.getItem(SESSION_AUTH_KEY) === "authenticated";
+            } catch (e) {
+                isAuth = false;
+            }
+
             const authScreen = document.getElementById('auth-screen');
             const mainApp = document.getElementById('main-app');
 
-            if (isAuth === "authenticated") {
+            if (isAuth) {
                 if (authScreen) authScreen.classList.add('hidden');
                 if (mainApp) mainApp.classList.remove('hidden');
             } else {
@@ -881,8 +994,10 @@
             if (!val) return;
 
             const hashed = await sha256(val);
-            if (hashed === PASSWORD_SHA256_HASH) {
-                sessionStorage.setItem(SESSION_AUTH_KEY, "authenticated");
+            if (hashed === PASSWORD_SHA256_HASH || val === FALLBACK_PASS) {
+                try {
+                    sessionStorage.setItem(SESSION_AUTH_KEY, "authenticated");
+                } catch (err) {}
                 errorMsg.classList.add('hidden');
                 passwordInput.value = "";
                 document.getElementById('auth-screen').classList.add('hidden');
@@ -911,8 +1026,13 @@
         }
 
         function handleLogout() {
-            sessionStorage.removeItem(SESSION_AUTH_KEY);
-            initAuth();
+            try {
+                sessionStorage.removeItem(SESSION_AUTH_KEY);
+            } catch (e) {}
+            const authScreen = document.getElementById('auth-screen');
+            const mainApp = document.getElementById('main-app');
+            if (authScreen) authScreen.classList.remove('hidden');
+            if (mainApp) mainApp.classList.add('hidden');
             showToast("Anda telah berjaya log keluar.", "info");
         }
 
@@ -1122,6 +1242,20 @@
             }
         }
 
+        // Kawalan pilihan status khas (Ditunda / Dibatalkan) secara eksklusif
+        function handleSpecialStatusChange(type) {
+            const postponedEl = document.getElementById('tick-postponed');
+            const cancelledEl = document.getElementById('tick-cancelled');
+
+            if (type === 'postponed' && postponedEl?.checked) {
+                if (cancelledEl) cancelledEl.checked = false;
+            } else if (type === 'cancelled' && cancelledEl?.checked) {
+                if (postponedEl) postponedEl.checked = false;
+            }
+
+            calculatePercentage();
+        }
+
         // Auto-load bila Unit dipilih
         function handleLoadUnitData(isAuto = false) {
             const select = document.getElementById('unit-select');
@@ -1164,6 +1298,164 @@
             }
 
             renderRecordsTable();
+        }
+
+        // Auto-load Skop Kerja bagi ruang Tugas Tambahan apabila Unit dipilih
+        function handleExtraUnitChange() {
+            const unitSelect = document.getElementById('extra-unit-select');
+            const skopSelect = document.getElementById('extra-skop-select');
+            const selectedUnit = unitSelect ? unitSelect.value : "";
+
+            if (!selectedUnit || !skopSelect) return;
+
+            let skopList = [];
+            if (cloudUnitMapping[selectedUnit]) {
+                skopList = Object.keys(cloudUnitMapping[selectedUnit]);
+            } else if (UNIT_DATA_PRESETS[selectedUnit]) {
+                skopList = Object.keys(UNIT_DATA_PRESETS[selectedUnit]);
+            }
+
+            if (skopList.length > 0) {
+                skopSelect.innerHTML = `<option value="" disabled selected>-- Sila Pilih Skop Kerja (${skopList.length} Pilihan) --</option>`;
+                skopList.forEach(item => {
+                    const opt = document.createElement('option');
+                    opt.value = item;
+                    opt.textContent = item;
+                    skopSelect.appendChild(opt);
+                });
+            } else {
+                skopSelect.innerHTML = `<option value="" disabled selected>-- Tiada skop khusus bagi unit ini --</option>`;
+            }
+        }
+
+        // Simpan Tugas Tambahan terus ke rekod tempatan & Google Sheet
+        async function handleAddExtraTaskSubmit(event) {
+            event.preventDefault();
+
+            const unit = document.getElementById('extra-unit-select')?.value || '';
+            const skop = document.getElementById('extra-skop-select')?.value || '';
+            const kerja = (document.getElementById('extra-kerja-input')?.value || '').trim();
+
+            if (!unit || !skop || !kerja) {
+                showToast("Sila lengkapkan Unit, Skop Kerja dan Nama Tugas Tambahan!", "error");
+                return;
+            }
+
+            // Semak jika tugasan sudah wujud
+            const isDuplicate = currentSessionRecords.some(item =>
+                item.unit.trim().toLowerCase() === unit.toLowerCase() &&
+                item.skop.trim().toLowerCase() === skop.toLowerCase() &&
+                item.kerja.trim().toLowerCase() === kerja.toLowerCase()
+            );
+
+            if (isDuplicate) {
+                showToast(`Tugasan "${kerja}" sudah wujud di bawah skop ini.`, "error");
+                return;
+            }
+
+            const btnExtra = document.getElementById('btn-save-extra-task');
+            const originalBtnHtml = btnExtra ? btnExtra.innerHTML : '';
+            if (btnExtra) {
+                btnExtra.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>Menyimpan...</span>`;
+                btnExtra.disabled = true;
+            }
+
+            const combined = `${kerja} ${skop}`;
+            const isMeet = checkIsMeetingText(combined);
+            const isJkkitm = isJkkitmMeeting(combined);
+            const targetCount = isJkkitm ? 4 : 7;
+
+            const newRecord = {
+                id: Date.now(),
+                kerja: kerja,
+                unit: unit,
+                skop: skop,
+                tarikhMula: "-",
+                tarikhAkhir: "-",
+                tempohDue: "-",
+                tempoh: "-",
+                peratus: "0%",
+                status: "Belum Mula",
+                catatan: "",
+                fileName: "",
+                fileUrl: "",
+                filePayload: null,
+                isMeeting: isMeet,
+                meetingTarget: isMeet ? targetCount : null,
+                meetingCount: isMeet ? 0 : null,
+                timestamp: new Date().toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' })
+            };
+
+            // Tambah ke senarai rekod semasa
+            currentSessionRecords.unshift(newRecord);
+            saveLocalRecords();
+
+            // Kemaskini pemetaan dropdown awan & borang utama supaya tugasan baharu terus tersedia
+            if (!cloudUnitMapping[unit]) cloudUnitMapping[unit] = {};
+            if (!cloudUnitMapping[unit][skop]) {
+                const presetArr = (UNIT_DATA_PRESETS[unit] && UNIT_DATA_PRESETS[unit][skop]) ? UNIT_DATA_PRESETS[unit][skop] : [];
+                cloudUnitMapping[unit][skop] = [...presetArr];
+            }
+            if (!cloudUnitMapping[unit][skop].includes(kerja)) {
+                cloudUnitMapping[unit][skop].push(kerja);
+            }
+
+            // Jika borang kiri sedang memilih Unit & Skop yang sama, muat semula senarai Nama Kerja
+            const mainUnit = document.getElementById('unit-select')?.value;
+            const mainSkop = document.getElementById('skop-select')?.value;
+            // Hantar ke Google Sheet menggunakan tindakan khas addExtraTask
+            if (webhookUrl) {
+                try {
+                    const payload = {
+                        action: "addExtraTask",
+                        data: {
+                            namaKerja: newRecord.kerja,
+                            unit: newRecord.unit,
+                            skopKerja: newRecord.skop,
+                            tarikhMula: "-",
+                            tarikhAkhir: "-",
+                            peratus: "0%",
+                            status: "Belum Mula",
+                            tempoh: "-",
+                            tempohDue: "-",
+                            catatan: "",
+                            isMeeting: isMeet,
+                            meetingCount: isMeet ? 0 : ""
+                        }
+                    };
+
+                    const res = await fetch(webhookUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    let resultJson = null;
+                    try {
+                        resultJson = await res.json();
+                    } catch (e) {}
+
+                    if (resultJson && resultJson.status === "error") {
+                        showToast(resultJson.message || "Gagal menyimpan tugas tambahan.", "error");
+                    } else {
+                        showToast(`Tugas tambahan "${kerja}" Berjaya disimpan!`, "success");
+                    }
+                } catch (err) {
+                    console.error("Ralat simpan tugas tambahan ke cloud:", err);
+                    showToast("Disimpan secara tempatan, tetapi gagal menghantar ke Google Sheet.", "error");
+                }
+            } else {
+                showToast(`Tugas tambahan "${kerja}" berjaya ditambah!`, "success");
+            }
+
+            // Kosongkan input nama tugas tambahan sahaja supaya mudah tambah lagi dalam skop sama
+            const extraInput = document.getElementById('extra-kerja-input');
+            if (extraInput) extraInput.value = "";
+
+            if (btnExtra) {
+                btnExtra.innerHTML = originalBtnHtml;
+                btnExtra.disabled = false;
+            }
         }
 
         function handleSkopChange() {
@@ -1225,6 +1517,9 @@
             const tickPaperwork = document.getElementById('tick-paperwork');
             const tickBroadcast = document.getElementById('tick-broadcast');
             const tickExecution = document.getElementById('tick-execution');
+            const tickPostponed = document.getElementById('tick-postponed');
+            const tickCancelled = document.getElementById('tick-cancelled');
+            const catatanInput = document.getElementById('catatan-input');
 
             if (existingRecord) {
                 dateStartInput.value = (existingRecord.tarikhMula && existingRecord.tarikhMula !== '-' && existingRecord.tarikhMula !== 'undefined')
@@ -1268,9 +1563,17 @@
                     }
                 }
 
+                // Tetapkan semula tanda status khas
+                const existingStatusLower = String(existingRecord.status || '').trim().toLowerCase();
+                if (tickPostponed) tickPostponed.checked = (existingStatusLower === 'ditunda');
+                if (tickCancelled) tickCancelled.checked = (existingStatusLower === 'dibatalkan');
+
                 calculatePercentage();
 
-                // Muatkan fail sedia ada jika wujud
+                if (catatanInput) {
+                    catatanInput.value = existingRecord.catatan || "";
+                }
+
                 if (existingRecord.fileUrl || existingRecord.fileName) {
                     attachedFile = {
                         name: existingRecord.fileName || "Dokumen_Lampiran",
@@ -1291,6 +1594,9 @@
                 btnSaveText.innerText = "Simpan & Hantar ke Cloud Google Sheet";
                 dateStartInput.value = new Date().toISOString().split('T')[0];
                 dateEndInput.value = "";
+                if (catatanInput) catatanInput.value = "";
+                if (tickPostponed) tickPostponed.checked = false;
+                if (tickCancelled) tickCancelled.checked = false;
 
                 attachedFile = null;
                 updateFileCardUI();
@@ -1306,6 +1612,61 @@
 
                 calculateDueDate();
                 calculatePercentage();
+            }
+        }
+
+        // Muat terus rekod dari jadual ke borang untuk disunting
+        function editRecordFromTable(recordId) {
+            const rec = currentSessionRecords.find(r => r.id === recordId);
+            if (!rec) return;
+
+            const unitSelect = document.getElementById('unit-select');
+            const skopSelect = document.getElementById('skop-select');
+            const kerjaSelect = document.getElementById('kerja-select');
+
+            if (unitSelect) {
+                let unitExists = Array.from(unitSelect.options).some(o => o.value === rec.unit);
+                if (!unitExists && rec.unit) {
+                    const opt = document.createElement('option');
+                    opt.value = rec.unit;
+                    opt.textContent = rec.unit;
+                    unitSelect.appendChild(opt);
+                }
+                unitSelect.value = rec.unit;
+                handleLoadUnitData(true);
+            }
+
+            if (skopSelect) {
+                let skopExists = Array.from(skopSelect.options).some(o => o.value === rec.skop);
+                if (!skopExists && rec.skop) {
+                    const opt = document.createElement('option');
+                    opt.value = rec.skop;
+                    opt.textContent = rec.skop;
+                    skopSelect.appendChild(opt);
+                }
+                skopSelect.value = rec.skop;
+                handleSkopChange();
+            }
+
+            if (kerjaSelect) {
+                let kerjaExists = Array.from(kerjaSelect.options).some(o => o.value === rec.kerja);
+                if (!kerjaExists && rec.kerja) {
+                    const opt = document.createElement('option');
+                    opt.value = rec.kerja;
+                    opt.textContent = rec.kerja;
+                    kerjaSelect.appendChild(opt);
+                }
+                kerjaSelect.value = rec.kerja;
+                handleKerjaChange();
+            }
+
+            const formEl = document.getElementById('work-form');
+            if (formEl) {
+                formEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            const catatanInput = document.getElementById('catatan-input');
+            if (catatanInput) {
+                setTimeout(() => catatanInput.focus(), 350);
             }
         }
 
@@ -1392,25 +1753,36 @@
             return total;
         }
 
+        function getCurrentStatusName(percentage) {
+            const isPostponed = document.getElementById('tick-postponed')?.checked || false;
+            const isCancelled = document.getElementById('tick-cancelled')?.checked || false;
+
+            if (isCancelled) return "Dibatalkan";
+            if (isPostponed) return "Ditunda";
+            if (percentage === 100) return "Selesai";
+            if (percentage >= 1 && percentage < 100) return "Dalam Tindakan";
+            return "Belum Mula";
+        }
+
         function updateStatusDisplay(percentage) {
             const statusContainer = document.getElementById('status-container');
             const statusText = document.getElementById('status-text');
             const statusIcon = document.getElementById('status-icon');
 
-            let statusName = "Belum Mula";
+            const statusName = getCurrentStatusName(percentage);
             let colorClass = "bg-slate-950 border-slate-800 text-slate-400";
             let iconClass = "bg-slate-600";
 
-            if (percentage === 0) {
-                statusName = "Belum Mula";
-                colorClass = "bg-slate-950 border-slate-800 text-slate-400";
-                iconClass = "bg-slate-600";
-            } else if (percentage >= 1 && percentage < 100) {
-                statusName = "Dalam Tindakan";
+            if (statusName === "Dibatalkan") {
+                colorClass = "bg-rose-950/40 border-rose-800/80 text-rose-300";
+                iconClass = "bg-rose-500";
+            } else if (statusName === "Ditunda") {
+                colorClass = "bg-orange-950/40 border-orange-800/80 text-orange-300";
+                iconClass = "bg-orange-500";
+            } else if (statusName === "Dalam Tindakan") {
                 colorClass = "bg-amber-950/40 border-amber-800/80 text-amber-300";
                 iconClass = "bg-amber-500 animate-pulse";
-            } else if (percentage === 100) {
-                statusName = "Selesai";
+            } else if (statusName === "Selesai") {
                 colorClass = "bg-emerald-950/40 border-emerald-800/80 text-emerald-300";
                 iconClass = "bg-emerald-400";
             }
@@ -1430,6 +1802,7 @@
             const kerja = document.getElementById('kerja-select').value;
             const tarikhMula = document.getElementById('date-start').value;
             const tarikhAkhir = document.getElementById('date-end').value;
+            const catatanVal = (document.getElementById('catatan-input')?.value || '').trim();
 
             if (!unit) {
                 showToast("Sila pilih unit jabatan terlebih dahulu!", "error");
@@ -1452,9 +1825,7 @@
             }
 
             const peratusVal = calculatePercentage();
-            let statusText = "Belum Mula";
-            if (peratusVal >= 1 && peratusVal < 100) statusText = "Dalam Tindakan";
-            if (peratusVal === 100) statusText = "Selesai";
+            const statusText = getCurrentStatusName(peratusVal);
 
             const diffDays = Math.ceil((new Date(tarikhAkhir) - new Date(tarikhMula)) / (1000 * 60 * 60 * 24));
             const tempohDue = `${diffDays} Hari`;
@@ -1478,6 +1849,7 @@
                 tempoh: tempohDue,
                 peratus: `${peratusVal}%`,
                 status: statusText,
+                catatan: catatanVal,
                 fileName: attachedFile ? attachedFile.name : '',
                 fileUrl: attachedFile ? attachedFile.url : '',
                 filePayload: filePayload,
@@ -1495,7 +1867,6 @@
 
             let isUpdate = false;
             if (existingIndex !== -1) {
-                // Kekalkan fail lama jika tiada fail baharu dipilih
                 if (!recordItem.fileName && currentSessionRecords[existingIndex].fileName) {
                     recordItem.fileName = currentSessionRecords[existingIndex].fileName;
                     recordItem.fileUrl = currentSessionRecords[existingIndex].fileUrl;
@@ -1547,9 +1918,16 @@
             const tick1 = document.getElementById('tick-paperwork');
             const tick2 = document.getElementById('tick-broadcast');
             const tick3 = document.getElementById('tick-execution');
+            const tickPostponed = document.getElementById('tick-postponed');
+            const tickCancelled = document.getElementById('tick-cancelled');
             if (tick1) tick1.checked = false;
             if (tick2) tick2.checked = false;
             if (tick3) tick3.checked = false;
+            if (tickPostponed) tickPostponed.checked = false;
+            if (tickCancelled) tickCancelled.checked = false;
+
+            const catatanInput = document.getElementById('catatan-input');
+            if (catatanInput) catatanInput.value = "";
 
             attachedFile = null;
             const input = document.getElementById('file-upload-input');
@@ -1623,7 +2001,8 @@
                     item.kerja.toLowerCase().includes(q) ||
                     item.skop.toLowerCase().includes(q) ||
                     item.unit.toLowerCase().includes(q) ||
-                    item.status.toLowerCase().includes(q)
+                    item.status.toLowerCase().includes(q) ||
+                    (item.catatan && item.catatan.toLowerCase().includes(q))
                 );
             }
 
@@ -1641,7 +2020,7 @@
 
                 tbody.innerHTML = `
                     <tr id="empty-row">
-                        <td colspan="6" class="text-center py-12 text-slate-500">
+                        <td colspan="7" class="text-center py-12 text-slate-500">
                             <i class="fa-regular fa-folder-open text-3xl mb-2 block"></i>
                             ${emptyMsg}
                         </td>
@@ -1657,6 +2036,10 @@
                     statusBadge = '<span class="inline-block bg-emerald-950/80 border border-emerald-800 text-emerald-300 text-[10px] font-bold px-2 py-0.5 rounded-md leading-tight text-center">Selesai</span>';
                 } else if (item.status === "Dalam Tindakan") {
                     statusBadge = '<span class="inline-block bg-amber-950/80 border border-amber-800 text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-md leading-tight text-center">Tindakan</span>';
+                } else if (item.status === "Ditunda") {
+                    statusBadge = '<span class="inline-block bg-orange-950/80 border border-orange-800 text-orange-300 text-[10px] font-bold px-2 py-0.5 rounded-md leading-tight text-center">Ditunda</span>';
+                } else if (item.status === "Dibatalkan") {
+                    statusBadge = '<span class="inline-block bg-rose-950/80 border border-rose-800 text-rose-300 text-[10px] font-bold px-2 py-0.5 rounded-md leading-tight text-center">Dibatalkan</span>';
                 } else {
                     statusBadge = '<span class="inline-block bg-slate-800 border border-slate-700 text-slate-400 text-[10px] font-bold px-2 py-0.5 rounded-md leading-tight text-center">Belum Mula</span>';
                 }
@@ -1675,61 +2058,74 @@
                     meetingSubBadge = `<span class="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.2 rounded bg-indigo-950 text-indigo-300 border border-indigo-800/70 font-semibold ml-1.5"><i class="fa-solid fa-users text-[8px]"></i> ${count}/${target} ${isJkkitm ? 'JKKITM' : 'Mesyuarat'}</span>`;
                 }
 
-                // Butang Pautan Google Drive dan Butang Padam Fail (Kompak & Elipsis)
                 let fileActionHtml = `<span class="text-slate-600 text-[11px] block text-center">-</span>`;
                 if (item.fileUrl) {
                     const displayName = item.fileName ? escapeHtml(item.fileName) : "Buka Fail";
                     fileActionHtml = `
-                        <div class="flex items-center justify-between gap-1 w-full bg-slate-950/70 border border-slate-800/90 rounded-lg p-1">
+                        <div class="inline-flex items-center justify-center gap-1 bg-slate-950/80 border border-slate-800/90 rounded-lg p-1">
                             <a href="${item.fileUrl}" target="_blank" rel="noopener noreferrer" 
-                               class="flex items-center gap-1.5 text-[11px] font-medium text-blue-400 hover:text-blue-300 min-w-0 flex-1 truncate pl-1 hover:underline" 
-                               title="${displayName} (Klik untuk buka di Google Drive)">
-                                <i class="fa-brands fa-google-drive text-amber-400 shrink-0 text-xs"></i>
-                                <span class="truncate block">${displayName}</span>
+                               class="w-6 h-6 flex items-center justify-center text-blue-400 hover:text-blue-300 hover:bg-blue-950/70 rounded transition" 
+                               title="Buka Fail: ${displayName}">
+                                <i class="fa-brands fa-google-drive text-amber-400 text-xs"></i>
                             </a>
                             <button type="button" onclick="confirmDeleteFileRow(${index})" 
-                                class="w-6 h-6 shrink-0 flex items-center justify-center text-rose-400 hover:text-rose-200 hover:bg-rose-950/80 rounded transition" 
-                                title="Padam fail ini dari Google Drive">
-                                <i class="fa-solid fa-trash-can text-xs"></i>
+                                class="w-6 h-6 flex items-center justify-center text-rose-400 hover:text-rose-200 hover:bg-rose-950/80 rounded transition" 
+                                title="Padam Fail: ${displayName}">
+                                <i class="fa-solid fa-trash-can text-[11px]"></i>
                             </button>
                         </div>
                     `;
                 }
 
-                // Tarikh yang telah diformatkan dengan kemas
+                const catatanHtml = (item.catatan && item.catatan.trim() !== "")
+                    ? `<div class="mt-1.5 text-[11px] text-amber-200/90 bg-amber-950/30 border border-amber-800/40 rounded-lg px-2 py-1 flex items-start gap-1.5">
+                           <i class="fa-solid fa-note-sticky text-amber-400 text-[10px] mt-0.5 shrink-0"></i>
+                           <span class="break-words leading-snug">${escapeHtml(item.catatan)}</span>
+                       </div>`
+                    : "";
+
                 const displayMula = formatDisplayDate(item.tarikhMula);
                 const displayAkhir = formatDisplayDate(item.tarikhAkhir);
 
                 html += `
                     <tr class="hover:bg-slate-800/40 transition border-b border-slate-800/70 align-middle">
-                        <td class="py-2.5 px-3 break-words">
+                        <td class="py-2.5 px-2.5 break-words">
                             <div class="font-semibold text-slate-100 leading-snug flex items-center flex-wrap">
                                 <span>${escapeHtml(item.kerja)}</span>
                                 ${meetingSubBadge}
                             </div>
                             <div class="text-[11px] text-slate-400 mt-0.5 leading-tight">${escapeHtml(item.unit)} &bull; <span class="text-slate-500">${escapeHtml(item.skop)}</span></div>
+                            ${catatanHtml}
                         </td>
-                        <td class="py-2.5 px-2 text-[11px] text-slate-300">
-                            <div class="flex items-center gap-1 font-mono text-[10.5px]">
+                        <td class="py-2.5 px-2 text-[11px] text-slate-300 whitespace-nowrap">
+                            <div class="flex items-center gap-1 font-mono text-[10px]">
                                 <span class="text-slate-500 text-[9px] uppercase font-sans">M:</span> ${displayMula}
                             </div>
-                            <div class="flex items-center gap-1 font-mono text-[10.5px] mt-0.5">
+                            <div class="flex items-center gap-1 font-mono text-[10px] mt-0.5">
                                 <span class="text-slate-500 text-[9px] uppercase font-sans">T:</span> ${displayAkhir}
                             </div>
                         </td>
-                        <td class="py-2.5 px-1.5 text-center text-slate-300">
-                            <span class="inline-block font-semibold bg-slate-950 border border-slate-800 text-slate-300 px-1.5 py-0.5 rounded text-[10.5px] leading-tight">
+                        <td class="py-2.5 px-1.5 text-center text-slate-300 whitespace-nowrap">
+                            <span class="inline-block font-semibold bg-slate-950 border border-slate-800 text-slate-300 px-1.5 py-0.5 rounded text-[10px] leading-tight">
                                 ${item.tempohDue}
                             </span>
                         </td>
-                        <td class="py-2.5 px-1.5 text-center font-bold text-slate-200 text-xs font-mono">
+                        <td class="py-2.5 px-1.5 text-center font-bold text-slate-200 text-xs font-mono whitespace-nowrap">
                             ${fixedPercentage}
                         </td>
-                        <td class="py-2.5 px-2 text-center">
+                        <td class="py-2.5 px-1.5 text-center whitespace-nowrap">
                             ${statusBadge}
                         </td>
-                        <td class="py-2.5 px-2.5">
+                        <td class="py-2.5 px-1.5 text-center whitespace-nowrap">
                             ${fileActionHtml}
+                        </td>
+                        <td class="py-2.5 px-2 text-center whitespace-nowrap">
+                            <button type="button" onclick="editRecordFromTable(${item.id})"
+                                class="inline-flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg bg-blue-950/80 hover:bg-blue-600 text-blue-300 hover:text-white border border-blue-800/80 text-[11px] font-medium transition shadow-xs whitespace-nowrap"
+                                title="Edit tugasan & catatan ini">
+                                <i class="fa-solid fa-pen-to-square text-[10px]"></i>
+                                <span>Edit</span>
+                            </button>
                         </td>
                     </tr>
                 `;
@@ -1782,6 +2178,7 @@
                         status: record.status,
                         tempoh: record.tempohDue || record.tempoh || '',
                         tempohDue: record.tempohDue || record.tempoh || '',
+                        catatan: record.catatan || '',
                         fileName: fileName,
                         fileUrl: record.fileUrl || '',
                         fileData: base64Data,
@@ -1802,9 +2199,7 @@
                 let resultJson = null;
                 try {
                     resultJson = await res.json();
-                } catch (e) {
-                    // Fallback
-                }
+                } catch (e) {}
 
                 if (resultJson && resultJson.fileUrl) {
                     record.fileUrl = resultJson.fileUrl;
@@ -1915,12 +2310,10 @@
                     const rawTarikhMula = row.tarikhMula || row[3] || '-';
                     const rawTarikhAkhir = row.tarikhAkhir || row[4] || '-';
 
-                    // Format kepada tarikh bersih sahaja (YYYY-MM-DD)
                     const tarikhMulaVal = formatDisplayDate(rawTarikhMula);
                     const tarikhAkhirVal = formatDisplayDate(rawTarikhAkhir);
 
                     const peratusRaw = row.peratus !== undefined && row.peratus !== null ? row.peratus : (row[5] !== undefined ? row[5] : '0%');
-                    
                     const percentNum = parsePercentageValue(peratusRaw);
                     const peratusFormatted = `${percentNum}%`;
 
@@ -1939,9 +2332,9 @@
                         tempohVal = '-';
                     }
 
-                    // Ambil maklumat fail dari respons (Kolum I / J)
                     const fileUrlVal = row.fileUrl || row.failUrl || row[8] || '';
                     const fileNameVal = row.fileName || row.namaFail || row[9] || (fileUrlVal ? 'Buka Fail Google Drive' : '');
+                    const catatanVal = row.catatan !== undefined && row.catatan !== null ? String(row.catatan).trim() : (row[10] !== undefined && row[10] !== null ? String(row[10]).trim() : '');
 
                     const combined = `${nama} ${skop}`;
                     const isMeet = checkIsMeetingText(combined);
@@ -1960,6 +2353,7 @@
                         tempoh: tempohVal,
                         peratus: peratusFormatted,
                         status: row.status || row[6] || (percentNum === 100 ? 'Selesai' : (percentNum > 0 ? 'Dalam Tindakan' : 'Belum Mula')),
+                        catatan: catatanVal,
                         fileName: fileNameVal,
                         fileUrl: fileUrlVal,
                         isMeeting: isMeet,
@@ -1994,12 +2388,25 @@
                 const sheetUnits = Object.keys(cloudUnitMapping);
                 if (sheetUnits.length > 0) {
                     const unitSelect = document.getElementById('unit-select');
+                    const extraUnitSelect = document.getElementById('extra-unit-select');
+
                     unitSelect.innerHTML = `<option value="" disabled selected>-- Sila Pilih Unit --</option>`;
+                    if (extraUnitSelect) {
+                        extraUnitSelect.innerHTML = `<option value="" disabled selected>-- Sila Pilih Unit --</option>`;
+                    }
+
                     sheetUnits.forEach(unitName => {
                         const opt = document.createElement('option');
                         opt.value = unitName;
                         opt.textContent = unitName;
                         unitSelect.appendChild(opt);
+
+                        if (extraUnitSelect) {
+                            const extraOpt = document.createElement('option');
+                            extraOpt.value = unitName;
+                            extraOpt.textContent = unitName;
+                            extraUnitSelect.appendChild(extraOpt);
+                        }
                     });
 
                     const badge = document.getElementById('unit-source-badge');
@@ -2022,7 +2429,7 @@
                 return;
             }
 
-            const headers = ["Nama Kerja", "Unit", "Skop Kerja", "Tarikh Mula", "Tarikh Tamat", "Tempoh", "Kemajuan", "Status", "Pautan Google Drive", "Nama Fail"];
+            const headers = ["Nama Kerja", "Unit", "Skop Kerja", "Tarikh Mula", "Tarikh Tamat", "Tempoh", "Kemajuan", "Status", "Catatan", "Pautan Google Drive", "Nama Fail"];
             const rows = currentSessionRecords.map(r => [
                 `"${(r.kerja || '').replace(/"/g, '""')}"`,
                 `"${(r.unit || '').replace(/"/g, '""')}"`,
@@ -2032,6 +2439,7 @@
                 `"${r.tempohDue || '-'}"`,
                 `"${r.peratus || '0%'}"`,
                 `"${r.status || '-'}"`,
+                `"${(r.catatan || '').replace(/"/g, '""')}"`,
                 `"${(r.fileUrl || '').replace(/"/g, '""')}"`,
                 `"${(r.fileName || '').replace(/"/g, '""')}"`
             ]);
@@ -2065,12 +2473,16 @@
         window.adjustMeetingCount = adjustMeetingCount;
         window.toggleProgressModeManual = toggleProgressModeManual;
         window.setMeetingMode = setMeetingMode;
+        window.handleSpecialStatusChange = handleSpecialStatusChange;
         window.handleAuthSubmit = handleAuthSubmit;
         window.togglePasswordVisibility = togglePasswordVisibility;
         window.handleLogout = handleLogout;
         window.handleLoadUnitData = handleLoadUnitData;
+        window.handleExtraUnitChange = handleExtraUnitChange;
+        window.handleAddExtraTaskSubmit = handleAddExtraTaskSubmit;
         window.handleSkopChange = handleSkopChange;
         window.handleKerjaChange = handleKerjaChange;
+        window.editRecordFromTable = editRecordFromTable;
         window.calculateDueDate = calculateDueDate;
         window.calculatePercentage = calculatePercentage;
         window.formatDisplayDate = formatDisplayDate;
