@@ -432,7 +432,7 @@
                                     <i class="fa-solid fa-folder-plus text-emerald-400"></i>
                                     Tambah Tugasan Baharu (Tugas Tambahan)
                                 </h3>
-                                <p class="text-xs text-slate-400 mt-0.5">Daftar tugasan baharu ke dalam sistem.</p>
+                                <p class="text-xs text-slate-400 mt-0.5">Daftar tugasan baharu ke dalam sistem mengikut Unit dan Skop Kerja.</p>
                             </div>
                             <span class="text-[11px] bg-emerald-950 text-emerald-300 border border-emerald-800 px-2.5 py-0.5 rounded-full font-medium">
                                 Tugas Tambahan
@@ -2307,6 +2307,8 @@
                 currentSessionRecords = result.data.map((row, idx) => {
                     const nama = row.namaKerja || row[0] || 'Tugasan';
                     const skop = row.skopKerja || row[2] || 'Skop Am';
+                    const rawUnit = String(row.unit || row[1] || 'Unit Pentadbiran & Sumber Manusia').trim();
+                    const unitVal = normalizeUnitName(rawUnit);
                     const rawTarikhMula = row.tarikhMula || row[3] || '-';
                     const rawTarikhAkhir = row.tarikhAkhir || row[4] || '-';
 
@@ -2345,7 +2347,7 @@
                     return {
                         id: Date.now() + idx,
                         kerja: nama,
-                        unit: row.unit || row[1] || 'Unit Pentadbiran & Sumber Manusia',
+                        unit: unitVal,
                         skop: skop,
                         tarikhMula: tarikhMulaVal,
                         tarikhAkhir: tarikhAkhirVal,
@@ -2369,7 +2371,7 @@
                 cloudUnitMapping = {};
                 result.data.forEach(row => {
                     const namaKerja = String(row.namaKerja || row[0] || '').trim();
-                    const unit = String(row.unit || row[1] || '').trim();
+                    const unit = normalizeUnitName(String(row.unit || row[1] || '').trim());
                     const skop = String(row.skopKerja || row[2] || 'Skop Am').trim();
 
                     if (unit) {
@@ -2396,15 +2398,16 @@
                     }
 
                     sheetUnits.forEach(unitName => {
+                        const displayUnit = normalizeUnitName(unitName);
                         const opt = document.createElement('option');
-                        opt.value = unitName;
-                        opt.textContent = unitName;
+                        opt.value = displayUnit;
+                        opt.textContent = displayUnit;
                         unitSelect.appendChild(opt);
 
                         if (extraUnitSelect) {
                             const extraOpt = document.createElement('option');
-                            extraOpt.value = unitName;
-                            extraOpt.textContent = unitName;
+                            extraOpt.value = displayUnit;
+                            extraOpt.textContent = displayUnit;
                             extraUnitSelect.appendChild(extraOpt);
                         }
                     });
@@ -2460,6 +2463,15 @@
             const div = document.createElement('div');
             div.innerText = string;
             return div.innerHTML;
+        }
+
+        // Menyelaraskan nama unit "Program Pengimarahan" kepada "Pengimarahan"
+        function normalizeUnitName(unitStr) {
+            const cleaned = String(unitStr || '').trim();
+            if (cleaned.toLowerCase() === 'program pengimarahan') {
+                return 'Pengimarahan';
+            }
+            return cleaned;
         }
 
         function autoSyncInitial() {
